@@ -1,2 +1,4 @@
 com/michelle/HomeServlet.class
+com/michelle/InsuranceServlet.class
+com/model/Database.class
 com/model/Employee.class
