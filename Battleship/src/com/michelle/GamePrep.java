@@ -58,77 +58,130 @@ public class GamePrep {
         Board cb = new Board(size, "Computer Board");
         Board tb = new Board(size, "Turn Board");
         placeShips(ub);
-        placeShips(cb, true);
+        placeComputerShips(cb);
     }
 
     private void placeShips (Board board){
 
         //This is the one that should help the user place the ships
-
         int error = -1;
         int kind = 0;
         int i = 0;
-        String j = "";
+        int j = 0;
         String orientation = "";
 
         System.out.println("Time to place your ships on the board!!");
 
+
         for (String ship : ships){
-            board.printBoard();
-            System.out.println("Where would you like to place the "+ship+" ? (Letter/Number)");
-            Scanner sc;
-            while(error == -1){
-                sc = new Scanner(System.in);
-                if (sc.hasNextLine()){
-                    try{
-                        String[] temp = sc.nextLine().split("/");
-                        try{
-                            j = temp[0];
-                            i = Integer.parseInt(temp[1]);
-                            error = 1;
-                        }catch (Exception e){
-                            System.out.println("You need to specify a number!!");
+            do{
+                board.printBoard();
+                System.out.println("Where would you like to place the "+ship+" ? (Letter/Number)");
+                Scanner sc = new Scanner(System.in);
+                while(error == -1) {
+                    if (sc.hasNextLine()) {
+                        try {
+                            String[] temp = sc.nextLine().split("/");
+                            try {
+                                j = board.getIndex(temp[0]);
+                                i = Integer.parseInt(temp[1]);
+                                error = 1;
+
+                            } catch (Exception e) {
+                                System.out.println("You need to specify the letter/number!!");
+                                error = -1;
+                            }
+                        } catch (Exception e) {
+                            System.out.println("There was an error there, could you try again to write the Letter/Number of your choice?");
+                            error = -1;
                         }
-                    } catch (Exception e){
-                        System.out.println("There was an error there, could you try again to write the Letter/Number of your choice?");
                     }
                 }
-            }
+                error = -1;
+                Scanner sc2 = new Scanner(System.in);
+                while (error == -1) {
+                    System.out.println("Horizontally or Vertically? (H/V)");
+                    if (sc2.hasNextLine()) {
+                        String temp1 = sc2.nextLine();
 
-            error = -1;
+                        if (temp1.equalsIgnoreCase("h") || temp1.equalsIgnoreCase("v")) {
+                            orientation = temp1;
+                            error = 1;
 
-            while (error == -1){
-                System.out.println("Horizontally or Vertically? (H/V)");
+                        } else {
+                            System.out.println("There was an error, please choose H or V.");
+                            error = -1;
+                        }
 
-                sc = new Scanner(System.in);
-                if (sc.hasNextLine()){
-                    String temp1 = sc.nextLine();
-
-                    if (temp1.equalsIgnoreCase("h") ||  temp1.equalsIgnoreCase("v")){
-                        orientation = temp1;
-                        error = 1;
-                    } else {
-                        System.out.println("There was an error, please choose H or V.");
                     }
-
                 }
-            }
-
-
+                error = -1;
+            } while (!checkError(board, i, j, kind, orientation));
             board.addShipToBoard(kind,i,j,orientation);
-
             kind++;
-
         }
-
-
     }
 
+    private boolean checkError(Board board, int i, int j, int kind, String orientation){
+        if (board.shipAlreadyExistsThere(i, j, kind, orientation)){
+            System.out.println("There is a ship there already! Pick another coordinate");
+            return false;
+        }
 
-    private void placeShips (Board board, boolean auto){
+        if (board.coordinatesOutOfBounds(i, j)){
+            System.out.println("You can't place a ship outside the board! Pick another coordinate");
+            return false;
+        }
+
+        if (board.shipOutOfBounds(i,j,kind,orientation)){
+            System.out.println("Uh Oh! The ship falls outside the board! Pick another coordinate");
+            return false;
+        }
+        return true;
+    }
+
+    private void placeComputerShips (Board board){
 
         //This method will auto place the ships on the computer board
+        int kind = 0;
+        int randomi = 0;
+        int randomj = 0;
+        String orientation = "";
 
+        for (String ship : ships){
+            //System.out.println("Placing the computer's "+ship);
+            do{
+                randomi = (int )(Math.random() * size + 1);
+                randomj = (int )(Math.random() * size + 1);
+                int randomOrientation = (int )(Math.random() * 2 + 1);
+                if (randomOrientation == 1){
+                    orientation = "h";
+                } else {
+                    orientation ="v";
+                }
+
+            } while (!checkComputerError(board, randomi, randomj, kind, orientation));
+            board.addShipToBoard(kind,randomi, randomj,orientation);
+            kind++;
+            board.printBoard();
+        }
+
+        System.out.println("The computer has placed its ships!");
+    }
+
+    private boolean checkComputerError(Board board, int i, int j, int kind, String orientation){
+        if (board.shipAlreadyExistsThere(i, j, kind, orientation)){
+            return false;
+        }
+
+        if (board.coordinatesOutOfBounds(i, j)){
+            return false;
+        }
+
+        if (board.shipOutOfBounds(i,j,kind,orientation)){
+            return false;
+        }
+        return true;
     }
 
 }

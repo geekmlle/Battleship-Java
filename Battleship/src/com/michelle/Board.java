@@ -1,7 +1,5 @@
 package com.michelle;
 
-import java.util.Arrays;
-
 /**
  * Created by blondieymollo on 2/24/16.
  */
@@ -12,25 +10,62 @@ public class Board {
     private String name;
     private String[][] board;
     private String[] letters = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "Q" };
-    private String[] ships = {"B", "C", "C",
-            "F","F","F","F",
-            "M","M","M","M"
-    };
-    private int[] shipSizes = {
-            5,4,4,3,3,3,3,2,2,2,2
-    };
+    private String[] ships = {"B", "C", "C", "F","F","F","F", "M","M","M","M"};
+    private int[] shipSizes = { 5,4,4,3,3,3,3,2,2,2,2 };
 
 
+    public String getName(){
+        return name;
+    }
+
+    public boolean coordinatesOutOfBounds(int i,  int j){
+        return (i >= boardSize ||  j >= boardSize);
+    }
+
+    public boolean shipAlreadyExistsThere(int i, int j, int kind, String orientation){
+        try{
+            for (int k =0; k<shipSizes[kind]; k++){
+                if (orientation.equals("h")){
+                    if (board[i][j] != null){
+                        return true;
+                    }
+                    j++;
+                } else {
+                    if (board[i][j] != null){
+                        return true;
+                    }
+                    i++;
+                }
+            }
+        } catch (ArrayIndexOutOfBoundsException a) {
+            return false;
+        }
+        return false;
+    }
+
+    public boolean shipOutOfBounds(int i, int j, int kind, String orientation){
+
+        if (orientation.equalsIgnoreCase("h")){
+            if (j+shipSizes[kind]>boardSize){
+                return true;
+            }
+        } else{
+            if(i+shipSizes[kind]>boardSize){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int getBoardSize(){
+        return boardSize;
+    }
 
     public Board(int boardSize, String name){
         this.name = name;
         this.boardSize = boardSize+1;
         board = new String[this.boardSize][this.boardSize];
         prepBoard();
-    }
-
-    public String getName(){
-        return name;
     }
 
     public void prepBoard () {
@@ -69,26 +104,18 @@ public class Board {
         }
     }
 
-    public boolean addShipToBoard (int kind, int i /*row*/, String j/*column*/, String orientation ){
-
-        System.out.println(j);
+    public boolean addShipToBoard (int kind, int i /*row*/, int j /*column*/, String orientation ){
 
         for (int k =0; k<shipSizes[kind]; k++){
-
             if (orientation.equals("h")){
-
-
-                System.out.println("["+i+"]["+getIndex(j)+"]");
-                //board[i][e] = letters[kind];
-
-
+                //If it's horizontal then i will be the same
+                board[i][j] = ships[kind];
+                j++;
             } else {
-
                 //if it's vertical then j will be the same
-
-
+                board[i][j] = ships[kind];
+                i++;
             }
-
         }
 
         return true;
@@ -96,7 +123,7 @@ public class Board {
 
 
 
-    private int getIndex(String letter){
+    public int getIndex(String letter){
         for (int i = 0; i < letters.length; i++) {
             if(letters[i].equalsIgnoreCase(letter)){
                 return i+1;
