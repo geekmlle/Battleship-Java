@@ -54,11 +54,26 @@ public class GamePrep {
     }
 
     private void initializeGame(){
-        Board ub = new Board(size, "User Board");
-        Board cb = new Board(size, "Computer Board");
-        Board tb = new Board(size, "Turn Board");
-        placeShips(ub);
+        Board ub = new Board(size);
+        Board cb = new Board(size);
+        Board tb = new Board(size);
+        //placeShips(ub);
+        autoPlaceShips(ub);
         placeComputerShips(cb);
+        new Play(ub, cb, tb);
+    }
+
+    private void autoPlaceShips (Board board){
+
+        //This is the debug method that inserts ships automatically for debugging. Preffered size of board is 12
+        int j = 1;
+        int kind = 0;
+        for (int i = 1; i<= ships.length; i++){
+            board.addShipToBoard(kind,i,j,"h");
+            kind++;
+        }
+        System.out.println("All done. Proceed");
+        board.printBoard();
     }
 
     private void placeShips (Board board){
@@ -71,7 +86,6 @@ public class GamePrep {
         String orientation = "";
 
         System.out.println("Time to place your ships on the board!!");
-
 
         for (String ship : ships){
             do{
@@ -123,10 +137,6 @@ public class GamePrep {
     }
 
     private boolean checkError(Board board, int i, int j, int kind, String orientation){
-        if (board.shipAlreadyExistsThere(i, j, kind, orientation)){
-            System.out.println("There is a ship there already! Pick another coordinate");
-            return false;
-        }
 
         if (board.coordinatesOutOfBounds(i, j)){
             System.out.println("You can't place a ship outside the board! Pick another coordinate");
@@ -137,6 +147,12 @@ public class GamePrep {
             System.out.println("Uh Oh! The ship falls outside the board! Pick another coordinate");
             return false;
         }
+
+        if (board.shipAlreadyExistsThere(i, j, kind, orientation)){
+            System.out.println("There is a ship there already! Pick another coordinate");
+            return false;
+        }
+
         return true;
     }
 
@@ -163,14 +179,15 @@ public class GamePrep {
             } while (!checkComputerError(board, randomi, randomj, kind, orientation));
             board.addShipToBoard(kind,randomi, randomj,orientation);
             kind++;
-            board.printBoard();
         }
 
         System.out.println("The computer has placed its ships!");
+        board.printBoard();
     }
 
     private boolean checkComputerError(Board board, int i, int j, int kind, String orientation){
-        if (board.shipAlreadyExistsThere(i, j, kind, orientation)){
+
+        if (board.shipOutOfBounds(i,j,kind,orientation)){
             return false;
         }
 
@@ -178,9 +195,10 @@ public class GamePrep {
             return false;
         }
 
-        if (board.shipOutOfBounds(i,j,kind,orientation)){
+        if (board.shipAlreadyExistsThere(i, j, kind, orientation)){
             return false;
         }
+
         return true;
     }
 
